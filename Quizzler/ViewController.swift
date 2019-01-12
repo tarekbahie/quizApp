@@ -23,8 +23,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let firstQuestion = allQuestions.list[0]
-        questionLabel.text = firstQuestion.questionText
+        nextQuestion()
+        updateUI()
     }
 
 
@@ -43,16 +43,18 @@ class ViewController: UIViewController {
     
     
     func updateUI() {
-        if questionNumber < allQuestions.list.count {
-      questionLabel.text = allQuestions.list[questionNumber].questionText
-    }
+      scoreLabel.text = String(describing: correctAnswers)
+        progressLabel.text = "\(questionNumber + 1)"
+        progressBar.frame.size.width = (view.frame.size.width / 13) * CGFloat(questionNumber + 1)
 }
     
 
     func nextQuestion() {
         if questionNumber < allQuestions.list.count{
             questionLabel.text = allQuestions.list[questionNumber].questionText
+            updateUI()
         } else {
+            scoreLabel.text = String(describing: correctAnswers)
             let alert = UIAlertController(title: "End of Quiz , you got \(correctAnswers) answers correct out of \(allQuestions.list.count)", message: "Quiz Completed.", preferredStyle: .alert)
             let restartAction = UIAlertAction(title: "Restart", style: .default) { (UIAlertAction) in
                 self.startOver()
@@ -60,6 +62,9 @@ class ViewController: UIViewController {
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (UIAlertAction) in
                 self.questionLabel.text = "you got \(self.correctAnswers) answers correct out of \(self.allQuestions.list.count)"
                 self.viewWithBtns.isHidden = true
+                self.progressLabel.isHidden = true
+                self.scoreLabel.isHidden = true
+                self.progressBar.isHidden = true
             }
             alert.addAction(restartAction)
             alert.addAction(cancelAction)
@@ -75,11 +80,26 @@ class ViewController: UIViewController {
        let correctAnswer = allQuestions.list[questionNumber].answer
        
         if correctAnswer == pickedAnswer {
-            print("Correct answer")
+            if questionNumber != allQuestions.list.count - 1 {
+//            ProgressHUD.showSuccess("Correct !")
+            let alert = UIAlertController(title: "Correct", message: "the correct answer is : \(correctAnswer)" , preferredStyle: .alert)
+            self.present(alert, animated: true, completion: {Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { (_) in
+                self.dismiss(animated: true, completion: nil)
+            })})
             correctAnswers += 1
-        }else {
             
-            print("Wrong !")
+            } else {
+                correctAnswers += 1
+            }
+        }else {
+            if questionNumber != allQuestions.list.count - 1 {
+//            ProgressHUD.showError("Wrong !")
+            let alert = UIAlertController(title: "false", message: "the correct answer is : \(correctAnswer)" , preferredStyle: .alert)
+            self.present(alert, animated: true, completion: {Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { (_) in
+                self.dismiss(animated: true, completion: nil)
+            })})
+
+        }
         }
         }
         
@@ -90,6 +110,7 @@ class ViewController: UIViewController {
        questionNumber = 0
         correctAnswers = 0
         nextQuestion()
+        scoreLabel.text = "0"
     }
     
 
